@@ -1,0 +1,453 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Pro Task Dashboard</title>
+    <style>
+        :root {
+            --bg-color: #f4f4f9;
+            --card-bg: #ffffff;
+            --text-color: #333333;
+            --heading-color: #2c3e50;
+            --border-color: #cccccc;
+            --task-bg: #f8f9fa;
+        }
+
+        .dark-theme {
+            --bg-color: #1e1e2e;
+            --card-bg: #2b2b3d;
+            --text-color: #f4f4f9;
+            --heading-color: #74b9ff;
+            --border-color: #44445c;
+            --task-bg: #36364f;
+        }
+
+        body {
+            font-family: Arial, sans-serif;
+            background-color: var(--bg-color);
+            color: var(--text-color);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            margin: 0;
+            padding: 20px;
+            box-sizing: border-box;
+            transition: all 0.3s ease;
+        }
+
+        .card {
+            background: var(--card-bg);
+            padding: 25px;
+            border-radius: 12px;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
+            text-align: center;
+            width: 100%;
+            max-width: 400px;
+        }
+
+        h1 {
+            color: var(--heading-color);
+            margin-bottom: 10px;
+            font-size: 24px;
+        }
+
+        p {
+            font-size: 14px;
+            line-height: 1.4;
+        }
+
+        input[type="text"], select {
+            width: 100%;
+            padding: 10px;
+            margin-top: 8px;
+            border: 1px solid var(--border-color);
+            background: var(--card-bg);
+            color: var(--text-color);
+            border-radius: 6px;
+            box-sizing: border-box;
+            font-size: 14px;
+        }
+
+        .btn {
+            display: inline-block;
+            margin-top: 10px;
+            padding: 10px 16px;
+            background-color: #27ae60;
+            color: white;
+            border: none;
+            border-radius: 6px;
+            font-weight: bold;
+            cursor: pointer;
+            width: 100%;
+        }
+
+        .btn-theme {
+            background-color: #8e44ad;
+            margin-bottom: 15px;
+        }
+
+        .btn-reset {
+            background-color: #e67e22;
+            margin-top: 15px;
+        }
+
+        #greeting {
+            margin-top: 15px;
+            font-weight: bold;
+            font-size: 16px;
+        }
+
+        .task-section {
+            margin-top: 20px;
+            padding-top: 15px;
+            border-top: 1px solid var(--border-color);
+            text-align: left;
+        }
+
+        .task-section h3 {
+            text-align: center;
+            color: var(--heading-color);
+            margin-bottom: 5px;
+        }
+
+        /* Progress Bar */
+        .progress-container {
+            width: 100%;
+            background-color: var(--border-color);
+            border-radius: 8px;
+            height: 12px;
+            margin: 10px 0 15px 0;
+            overflow: hidden;
+        }
+
+        .progress-bar {
+            height: 100%;
+            width: 0%;
+            background-color: #27ae60;
+            transition: width 0.3s ease;
+        }
+
+        /* Filter Tabs */
+        .filter-group {
+            display: flex;
+            justify-content: space-between;
+            margin: 10px 0;
+            gap: 5px;
+        }
+
+        .filter-btn {
+            flex: 1;
+            padding: 6px;
+            font-size: 12px;
+            border: 1px solid var(--border-color);
+            background: var(--card-bg);
+            color: var(--text-color);
+            border-radius: 4px;
+            cursor: pointer;
+            font-weight: bold;
+        }
+
+        .filter-btn.active {
+            background-color: #2980b9;
+            color: white;
+            border-color: #2980b9;
+        }
+
+        .input-group {
+            display: flex;
+            flex-direction: column;
+            gap: 4px;
+        }
+
+        .row-group {
+            display: flex;
+            gap: 8px;
+        }
+
+        .btn-add-task {
+            background-color: #2980b9;
+        }
+
+        ul {
+            list-style-type: none;
+            padding: 0;
+            margin-top: 15px;
+        }
+
+        li {
+            background: var(--task-bg);
+            padding: 10px 12px;
+            margin-bottom: 8px;
+            border-radius: 6px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border: 1px solid var(--border-color);
+            font-size: 13px;
+        }
+
+        li.completed-task {
+            opacity: 0.6;
+            text-decoration: line-through;
+        }
+
+        .task-info {
+            display: flex;
+            flex-direction: column;
+            gap: 3px;
+        }
+
+        .task-meta {
+            display: flex;
+            gap: 5px;
+            align-items: center;
+        }
+
+        .task-time {
+            font-size: 10px;
+            opacity: 0.7;
+        }
+
+        .badge {
+            font-size: 10px;
+            padding: 2px 6px;
+            border-radius: 4px;
+            color: white;
+            font-weight: bold;
+            width: fit-content;
+        }
+
+        .badge-high { background-color: #e74c3c; }
+        .badge-medium { background-color: #f39c12; }
+        .badge-low { background-color: #2ec4b6; }
+        .badge-category { background-color: #8e44ad; }
+
+        .action-btns {
+            display: flex;
+            gap: 5px;
+        }
+
+        .delete-btn {
+            background-color: #e74c3c;
+            color: white;
+            border: none;
+            padding: 6px 10px;
+            border-radius: 4px;
+            cursor: pointer;
+            font-weight: bold;
+        }
+
+        .complete-btn {
+            background-color: #27ae60;
+            color: white;
+            border: none;
+            padding: 6px 10px;
+            border-radius: 4px;
+            cursor: pointer;
+            font-weight: bold;
+        }
+    </style>
+</head>
+<body>
+    <div class="card">
+        <button class="btn btn-theme" onclick="toggleTheme()">Toggle Dark Mode</button>
+        
+        <h1>Welcome!</h1>
+        <p>Enter your name to save it locally:</p>
+        
+        <input type="text" id="userName" placeholder="Type your name here...">
+        <button class="btn" onclick="saveName()">Save Name</button>
+
+        <p id="greeting"></p>
+
+        <div class="task-section">
+            <h3>Completed Tasks: <span id="count">0</span></h3>
+            
+            <div class="progress-container">
+                <div class="progress-bar" id="progressBar"></div>
+            </div>
+
+            <div class="input-group">
+                <input type="text" id="taskInput" placeholder="Add a new task...">
+                <div class="row-group">
+                    <select id="taskCategory">
+                        <option value="Study">Study</option>
+                        <option value="Work">Work</option>
+                        <option value="Personal">Personal</option>
+                    </select>
+                    <select id="taskPriority">
+                        <option value="Low">Low Priority</option>
+                        <option value="Medium">Medium Priority</option>
+                        <option value="High">High Priority</option>
+                    </select>
+                </div>
+                <button class="btn btn-add-task" onclick="addTask()">Add Task</button>
+            </div>
+
+            <div class="filter-group">
+                <button class="filter-btn active" onclick="setFilter('all', this)">All</button>
+                <button class="filter-btn" onclick="setFilter('active', this)">Active</button>
+                <button class="filter-btn" onclick="setFilter('completed', this)">Completed</button>
+            </div>
+
+            <ul id="taskList"></ul>
+
+            <button class="btn btn-reset" onclick="clearAllData()">Reset All Data</button>
+        </div>
+    </div>
+
+    <script>
+        let count = 0;
+        let tasks = [];
+        let currentFilter = 'all';
+
+        window.onload = function() {
+            let savedName = localStorage.getItem("user_name");
+            if (savedName) {
+                displayGreeting(savedName);
+            }
+
+            let savedTasks = localStorage.getItem("user_tasks");
+            let savedCount = localStorage.getItem("task_count");
+
+            if (savedTasks) {
+                tasks = JSON.parse(savedTasks);
+            }
+            if (savedCount) {
+                count = parseInt(savedCount);
+            }
+
+            updateUI();
+        };
+
+        function saveName() {
+            var name = document.getElementById("userName").value;
+            if (name.trim() !== "") {
+                localStorage.setItem("user_name", name);
+                displayGreeting(name);
+            }
+        }
+
+        function displayGreeting(name) {
+            var greetingText = document.getElementById("greeting");
+            greetingText.innerText = "Welcome back, " + name + "!";
+            greetingText.style.color = "#27ae60";
+        }
+
+        function toggleTheme() {
+            document.body.classList.toggle("dark-theme");
+        }
+
+        function addTask() {
+            let taskInput = document.getElementById("taskInput");
+            let prioritySelect = document.getElementById("taskPriority");
+            let categorySelect = document.getElementById("taskCategory");
+            let taskText = taskInput.value.trim();
+
+            if (taskText !== "") {
+                let now = new Date();
+                let timeString = now.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+
+                tasks.push({
+                    text: taskText,
+                    category: categorySelect.value,
+                    priority: prioritySelect.value,
+                    time: timeString,
+                    completed: false
+                });
+
+                taskInput.value = "";
+                saveToLocalStorage();
+                updateUI();
+            }
+        }
+
+        function toggleTaskComplete(index) {
+            tasks[index].completed = !tasks[index].completed;
+            if (tasks[index].completed) {
+                count++;
+            } else {
+                if (count > 0) count--;
+            }
+            saveToLocalStorage();
+            updateUI();
+        }
+
+        function deleteTask(index) {
+            if (tasks[index].completed && count > 0) {
+                count--;
+            }
+            tasks.splice(index, 1);
+            saveToLocalStorage();
+            updateUI();
+        }
+
+        function setFilter(filter, btn) {
+            currentFilter = filter;
+            document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
+            btn.classList.add('active');
+            updateUI();
+        }
+
+        function clearAllData() {
+            if (confirm("Are you sure you want to clear all tasks and stats?")) {
+                localStorage.clear();
+                tasks = [];
+                count = 0;
+                document.getElementById("greeting").innerText = "";
+                document.getElementById("userName").value = "";
+                updateUI();
+            }
+        }
+
+        function saveToLocalStorage() {
+            localStorage.setItem("user_tasks", JSON.stringify(tasks));
+            localStorage.setItem("task_count", count);
+        }
+
+        function updateUI() {
+            document.getElementById("count").innerText = count;
+
+            // Update Progress Bar
+            let totalTasks = tasks.length;
+            let completedCount = tasks.filter(t => t.completed).length;
+            let percentage = totalTasks === 0 ? 0 : Math.round((completedCount / totalTasks) * 100);
+            document.getElementById("progressBar").style.width = percentage + "%";
+
+            // Filter List
+            let taskList = document.getElementById("taskList");
+            taskList.innerHTML = "";
+
+            tasks.forEach((task, index) => {
+                if (currentFilter === 'active' && task.completed) return;
+                if (currentFilter === 'completed' && !task.completed) return;
+
+                let badgeClass = "badge-low";
+                if (task.priority === "Medium") badgeClass = "badge-medium";
+                if (task.priority === "High") badgeClass = "badge-high";
+
+                let li = document.createElement("li");
+                if (task.completed) li.classList.add("completed-task");
+
+                li.innerHTML = `
+                    <div class="task-info">
+                        <span><strong>${task.text}</strong></span>
+                        <div class="task-meta">
+                            <span class="badge badge-category">${task.category}</span>
+                            <span class="badge ${badgeClass}">${task.priority}</span>
+                        </div>
+                        <span class="task-time">Added: ${task.time}</span>
+                    </div>
+                    <div class="action-btns">
+                        <button class="complete-btn" onclick="toggleTaskComplete(${index})">${task.completed ? '✓' : 'Done'}</button>
+                        <button class="delete-btn" onclick="deleteTask(${index})">✕</button>
+                    </div>
+                `;
+                taskList.appendChild(li);
+            });
+        }
+    </script>
+</body>
+</html>
