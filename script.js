@@ -6,19 +6,40 @@ document.addEventListener("DOMContentLoaded", () => {
     const taskInput = document.getElementById("taskInput");
     const categorySelect = document.getElementById("categorySelect");
     const prioritySelect = document.getElementById("prioritySelect");
+    const dueDateInput = document.getElementById("dueDateInput");
     const addTaskBtn = document.getElementById("addTaskBtn");
     const taskList = document.getElementById("taskList");
     const completedCount = document.getElementById("completedCount");
     const progressBar = document.getElementById("progressBar");
     const resetDataBtn = document.getElementById("resetDataBtn");
     const filterBtns = document.querySelectorAll(".filter-btn");
+    const exportJsonBtn = document.getElementById("exportJsonBtn");
+    const exportCsvBtn = document.getElementById("exportCsvBtn");
+    const importFile = document.getElementById("importFile");
 
     let tasks = JSON.parse(localStorage.getItem("tasks")) || [];
     let currentFilter = "all";
 
-    // Load saved settings
     if (localStorage.getItem("darkMode") === "enabled") document.body.classList.add("dark-mode");
     if (localStorage.getItem("userName")) displayGreeting(localStorage.getItem("userName"));
+
+    // Audio synthesizer for completion sound
+    function playCompleteSound() {
+        try {
+            const ctx = new (window.AudioContext || window.webkitAudioContext)();
+            const osc = ctx.createOscillator();
+            const gain = ctx.createGain();
+            osc.connect(gain);
+            gain.connect(ctx.destination);
+            osc.type = "sine";
+            osc.frequency.setValueAtTime(587.33, ctx.currentTime);
+            osc.frequency.setValueAtTime(880, ctx.currentTime + 0.1);
+            gain.gain.setValueAtTime(0.1, ctx.currentTime);
+            gain.gain.exponentialRampToValueAtTime(0.00001, ctx.currentTime + 0.3);
+            osc.start();
+            osc.stop(ctx.currentTime + 0.3);
+        } catch (e) {}
+    }
 
     themeToggleBtn.addEventListener("click", () => {
         document.body.classList.toggle("dark-mode");
@@ -42,8 +63,15 @@ document.addEventListener("DOMContentLoaded", () => {
     addTaskBtn.addEventListener("click", () => {
         const text = taskInput.value.trim();
         if (text) {
-            tasks.push({ text, category: categorySelect.value, priority: prioritySelect.value, completed: false });
+            tasks.push({ 
+                text, 
+                category: categorySelect.value, 
+                priority: prioritySelect.value, 
+                dueDate: dueDateInput.value, 
+                completed: false 
+            });
             taskInput.value = "";
+            dueDateInput.value = "";
             saveAndRender();
         }
     });
@@ -51,6 +79,7 @@ document.addEventListener("DOMContentLoaded", () => {
     function renderTasks() {
         taskList.innerHTML = "";
         let completed = 0;
+        const today = new Date().toISOString().split("T")[0];
 
         tasks.forEach((task, index) => {
             if (task.completed) completed++;
@@ -60,10 +89,21 @@ document.addEventListener("DOMContentLoaded", () => {
 
             const li = document.createElement("li");
             if (task.completed) li.classList.add("completed");
+
+            let dueText = "";
+            if (task.dueDate) {
+                const isOverdue = task.dueDate < today && !task.completed;
+                dueText = `<span class="due-badge ${isOverdue ? '' : 'ok'}">${isOverdue ? 'Overdue: ' : 'Due: '}${task.dueDate}</span>`;
+            }
+
             li.innerHTML = `
-                <span>${task.text} <small>(${task.category} - ${task.priority})</small></span>
-                <div>
+                <div class="task-info">
+                    <span>${task.text} <small>(${task.category} - ${task.priority})</small></span>
+                    ${dueText}
+                </div>
+                <div class="task-actions">
                     <button onclick="toggleTask(${index})">✓</button>
+                    <button onclick="editTask(${index})">✎</button>
                     <button onclick="deleteTask(${index})">✕</button>
                 </div>
             `;
@@ -76,7 +116,16 @@ document.addEventListener("DOMContentLoaded", () => {
 
     window.toggleTask = (index) => {
         tasks[index].completed = !tasks[index].completed;
+        if (tasks[index].completed) playCompleteSound();
         saveAndRender();
+    };
+
+    window.editTask = (index) => {
+        const newText = prompt("Edit your task:", tasks[index].text);
+        if (newText !== null && newText.trim() !== "") {
+            tasks[index].text = newText.trim();
+            saveAndRender();
+        }
     };
 
     window.deleteTask = (index) => {
@@ -92,6 +141,42 @@ document.addEventListener("DOMContentLoaded", () => {
             renderTasks();
         });
     });
+
+    // Data Export & Import
+    exportJsonBtn.addEventListener("click", () => {
+        downloadFile("tasks.json", JSON.stringify(tasks, null, 2), "application/json");
+    });
+
+    exportCsvBtn.addEventListener("click", () => {
+        let csv = "Text,Category,Priority,DueDate,Completed\n";
+        tasks.forEach(t => {
+            csv += `"${t.text}","${t.category}","${t.priority}","${t.dueDate || ''}",${t.completed}\n`;
+        });
+        downloadFile("tasks.csv", csv, "text/csv");
+    });
+
+    importFile.addEventListener("change", (e) => {
+        const file = e.target.files[0];
+        if (!file) return;
+        const reader = new FileReader();
+        reader.onload = (event) => {
+            try {
+                tasks = JSON.parse(event.target.result);
+                saveAndRender();
+            } catch (err) {
+                alert("Invalid JSON file");
+            }
+        };
+        reader.readAsText(file);
+    });
+
+    function downloadFile(filename, content, type) {
+        const blob = new Blob([content], { type });
+        const a = document.createElement("a");
+        a.href = URL.createObjectURL(blob);
+        a.download = filename;
+        a.click();
+    }
 
     resetDataBtn.addEventListener("click", () => {
         localStorage.clear();

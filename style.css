@@ -25,7 +25,7 @@ body {
 .container {
     background-color: var(--card-bg);
     width: 100%;
-    max-width: 400px;
+    max-width: 420px;
     padding: 24px 20px;
     border-radius: 16px;
     box-shadow: 0 4px 15px rgba(0,0,0,0.05);
@@ -51,8 +51,9 @@ input, select {
 }
 
 .select-group { display: flex; gap: 8px; }
+.date-input { margin-top: 4px; }
 
-button {
+button, .file-label {
     width: 100%;
     padding: 11px;
     border: none;
@@ -60,15 +61,19 @@ button {
     font-weight: 600;
     cursor: pointer;
     font-size: 0.95rem;
+    box-sizing: border-box;
+    display: inline-block;
 }
 
 .purple-btn { background-color: #8e44ad; color: white; }
 .green-btn { background-color: #27ae60; color: white; }
 .blue-btn { background-color: #2980b9; color: white; }
 .orange-btn { background-color: #e67e22; color: white; }
+.gray-btn { background-color: #7f8c8d; color: white; text-align: center; }
 
 .greeting { color: #27ae60; font-weight: 600; margin-top: 8px; }
 .hidden { display: none; }
+.hidden-input { display: none; }
 .divider { border: 0; height: 1px; background: var(--border-color); margin: 6px 0; }
 
 .progress-bar-container {
@@ -103,5 +108,16 @@ button {
     display: flex;
     justify-content: space-between;
     align-items: center;
+    transition: transform 0.2s ease, opacity 0.2s ease;
 }
-#taskList li.completed { text-decoration: line-through; opacity: 0.6; }
+
+#taskList li.completed { text-decoration: line-through; opacity: 0.6; transform: scale(0.98); }
+
+.task-info { display: flex; flex-direction: column; gap: 2px; }
+.due-badge { font-size: 0.75rem; font-weight: bold; color: #e74c3c; }
+.due-badge.ok { color: #27ae60; }
+
+.task-actions { display: flex; gap: 4px; }
+.task-actions button { width: auto; padding: 4px 8px; font-size: 0.85rem; }
+
+.backup-group { display: flex; gap: 6px; }

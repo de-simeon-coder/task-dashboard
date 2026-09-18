@@ -42,6 +42,8 @@
                 </select>
             </div>
 
+            <input type="date" id="dueDateInput" class="date-input">
+
             <button id="addTaskBtn" class="blue-btn">Add Task</button>
         </div>
 
@@ -52,6 +54,13 @@
         </div>
 
         <ul id="taskList"></ul>
+
+        <div class="backup-group">
+            <button id="exportJsonBtn" class="gray-btn">Export JSON</button>
+            <button id="exportCsvBtn" class="gray-btn">Export CSV</button>
+            <label for="importFile" class="gray-btn file-label">Import Data</label>
+            <input type="file" id="importFile" accept=".json" class="hidden-input">
+        </div>
 
         <button id="resetDataBtn" class="orange-btn">Reset All Data</button>
     </div>
