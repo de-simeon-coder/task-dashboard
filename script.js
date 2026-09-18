@@ -9,8 +9,11 @@ document.addEventListener("DOMContentLoaded", () => {
     const dueDateInput = document.getElementById("dueDateInput");
     const addTaskBtn = document.getElementById("addTaskBtn");
     const taskList = document.getElementById("taskList");
-    const completedCount = document.getElementById("completedCount");
+    const totalTasksCount = document.getElementById("totalTasksCount");
+    const activeTasksCount = document.getElementById("activeTasksCount");
+    const completedTasksCount = document.getElementById("completedTasksCount");
     const progressBar = document.getElementById("progressBar");
+    const clearCompletedBtn = document.getElementById("clearCompletedBtn");
     const resetDataBtn = document.getElementById("resetDataBtn");
     const filterBtns = document.querySelectorAll(".filter-btn");
     const searchInput = document.getElementById("searchInput");
@@ -126,7 +129,6 @@ document.addEventListener("DOMContentLoaded", () => {
                 </div>
             `;
 
-            // Drag and Drop listeners
             li.addEventListener("dragstart", (e) => {
                 li.classList.add("dragging");
                 e.dataTransfer.setData("text/plain", index);
@@ -155,7 +157,9 @@ document.addEventListener("DOMContentLoaded", () => {
             taskList.appendChild(li);
         });
 
-        completedCount.textContent = `Completed Tasks: ${completed}`;
+        totalTasksCount.textContent = tasks.length;
+        activeTasksCount.textContent = tasks.length - completed;
+        completedTasksCount.textContent = completed;
         progressBar.style.width = tasks.length ? `${(completed / tasks.length) * 100}%` : "0%";
     }
 
@@ -177,6 +181,11 @@ document.addEventListener("DOMContentLoaded", () => {
         tasks.splice(index, 1);
         saveAndRender();
     };
+
+    clearCompletedBtn.addEventListener("click", () => {
+        tasks = tasks.filter(task => !task.completed);
+        saveAndRender();
+    });
 
     filterBtns.forEach(btn => {
         btn.addEventListener("click", () => {

@@ -70,12 +70,29 @@ button, .file-label {
 .green-btn { background-color: #27ae60; color: white; }
 .blue-btn { background-color: #2980b9; color: white; }
 .orange-btn { background-color: #e67e22; color: white; }
+.red-btn { background-color: #c0392b; color: white; }
 .gray-btn { background-color: #7f8c8d; color: white; text-align: center; }
 
 .greeting { color: #27ae60; font-weight: 600; margin-top: 8px; }
 .hidden { display: none; }
 .hidden-input { display: none; }
 .divider { border: 0; height: 1px; background: var(--border-color); margin: 6px 0; }
+
+.stats-grid {
+    display: flex;
+    justify-content: space-around;
+    gap: 8px;
+}
+.stat-card {
+    background: var(--bg-color);
+    padding: 8px 12px;
+    border-radius: 8px;
+    display: flex;
+    flex-direction: column;
+    flex: 1;
+}
+.stat-card span { font-size: 1.2rem; font-weight: bold; color: #2980b9; }
+.stat-card small { font-size: 0.75rem; color: #7f8c8d; }
 
 .progress-bar-container {
     background-color: #e0e0e0;
@@ -122,7 +139,6 @@ button, .file-label {
 
 .task-info { display: flex; flex-direction: column; gap: 4px; }
 
-/* Category Badges */
 .badge {
     display: inline-block;
     padding: 2px 8px;
@@ -137,11 +153,11 @@ button, .file-label {
 .badge-personal { background-color: #e67e22; }
 
 .priority-tag { font-size: 0.8rem; color: #7f8c8d; }
-
 .due-badge { font-size: 0.75rem; font-weight: bold; color: #e74c3c; }
 .due-badge.ok { color: #27ae60; }
 
 .task-actions { display: flex; gap: 4px; }
 .task-actions button { width: auto; padding: 4px 8px; font-size: 0.85rem; }
 
+.action-row { margin-top: -4px; }
 .backup-group { display: flex; gap: 6px; }
