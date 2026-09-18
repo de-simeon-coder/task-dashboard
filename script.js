@@ -13,17 +13,18 @@ document.addEventListener("DOMContentLoaded", () => {
     const progressBar = document.getElementById("progressBar");
     const resetDataBtn = document.getElementById("resetDataBtn");
     const filterBtns = document.querySelectorAll(".filter-btn");
+    const searchInput = document.getElementById("searchInput");
     const exportJsonBtn = document.getElementById("exportJsonBtn");
     const exportCsvBtn = document.getElementById("exportCsvBtn");
     const importFile = document.getElementById("importFile");
 
     let tasks = JSON.parse(localStorage.getItem("tasks")) || [];
     let currentFilter = "all";
+    let searchQuery = "";
 
     if (localStorage.getItem("darkMode") === "enabled") document.body.classList.add("dark-mode");
     if (localStorage.getItem("userName")) displayGreeting(localStorage.getItem("userName"));
 
-    // Audio synthesizer for completion sound
     function playCompleteSound() {
         try {
             const ctx = new (window.AudioContext || window.webkitAudioContext)();
@@ -76,6 +77,11 @@ document.addEventListener("DOMContentLoaded", () => {
         }
     });
 
+    searchInput.addEventListener("input", (e) => {
+        searchQuery = e.target.value.toLowerCase();
+        renderTasks();
+    });
+
     function renderTasks() {
         taskList.innerHTML = "";
         let completed = 0;
@@ -87,7 +93,13 @@ document.addEventListener("DOMContentLoaded", () => {
             if (currentFilter === "active" && task.completed) return;
             if (currentFilter === "completed" && !task.completed) return;
 
+            if (searchQuery && !task.text.toLowerCase().includes(searchQuery) && !task.category.toLowerCase().includes(searchQuery)) {
+                return;
+            }
+
             const li = document.createElement("li");
+            li.setAttribute("draggable", "true");
+            li.dataset.index = index;
             if (task.completed) li.classList.add("completed");
 
             let dueText = "";
@@ -96,9 +108,15 @@ document.addEventListener("DOMContentLoaded", () => {
                 dueText = `<span class="due-badge ${isOverdue ? '' : 'ok'}">${isOverdue ? 'Overdue: ' : 'Due: '}${task.dueDate}</span>`;
             }
 
+            const categoryClass = `badge-${task.category.toLowerCase()}`;
+
             li.innerHTML = `
                 <div class="task-info">
-                    <span>${task.text} <small>(${task.category} - ${task.priority})</small></span>
+                    <div>
+                        <strong>${task.text}</strong>
+                        <span class="badge ${categoryClass}">${task.category}</span>
+                    </div>
+                    <span class="priority-tag">${task.priority}</span>
                     ${dueText}
                 </div>
                 <div class="task-actions">
@@ -107,6 +125,33 @@ document.addEventListener("DOMContentLoaded", () => {
                     <button onclick="deleteTask(${index})">✕</button>
                 </div>
             `;
+
+            // Drag and Drop listeners
+            li.addEventListener("dragstart", (e) => {
+                li.classList.add("dragging");
+                e.dataTransfer.setData("text/plain", index);
+            });
+
+            li.addEventListener("dragend", () => {
+                li.classList.remove("dragging");
+            });
+
+            li.addEventListener("dragover", (e) => {
+                e.preventDefault();
+            });
+
+            li.addEventListener("drop", (e) => {
+                e.preventDefault();
+                const draggedIndex = e.dataTransfer.getData("text/plain");
+                const targetIndex = li.dataset.index;
+
+                if (draggedIndex !== undefined && targetIndex !== undefined && draggedIndex !== targetIndex) {
+                    const draggedItem = tasks.splice(draggedIndex, 1)[0];
+                    tasks.splice(targetIndex, 0, draggedItem);
+                    saveAndRender();
+                }
+            });
+
             taskList.appendChild(li);
         });
 
@@ -142,7 +187,6 @@ document.addEventListener("DOMContentLoaded", () => {
         });
     });
 
-    // Data Export & Import
     exportJsonBtn.addEventListener("click", () => {
         downloadFile("tasks.json", JSON.stringify(tasks, null, 2), "application/json");
     });

@@ -52,6 +52,7 @@ input, select {
 
 .select-group { display: flex; gap: 8px; }
 .date-input { margin-top: 4px; }
+.search-box { margin-top: 2px; }
 
 button, .file-label {
     width: 100%;
@@ -109,11 +110,34 @@ button, .file-label {
     justify-content: space-between;
     align-items: center;
     transition: transform 0.2s ease, opacity 0.2s ease;
+    cursor: grab;
+}
+
+#taskList li.dragging {
+    opacity: 0.4;
+    border: 2px dashed #2980b9;
 }
 
 #taskList li.completed { text-decoration: line-through; opacity: 0.6; transform: scale(0.98); }
 
-.task-info { display: flex; flex-direction: column; gap: 2px; }
+.task-info { display: flex; flex-direction: column; gap: 4px; }
+
+/* Category Badges */
+.badge {
+    display: inline-block;
+    padding: 2px 8px;
+    border-radius: 12px;
+    font-size: 0.75rem;
+    font-weight: 600;
+    color: white;
+    margin-left: 4px;
+}
+.badge-study { background-color: #9b59b6; }
+.badge-work { background-color: #3498db; }
+.badge-personal { background-color: #e67e22; }
+
+.priority-tag { font-size: 0.8rem; color: #7f8c8d; }
+
 .due-badge { font-size: 0.75rem; font-weight: bold; color: #e74c3c; }
 .due-badge.ok { color: #27ae60; }
 
